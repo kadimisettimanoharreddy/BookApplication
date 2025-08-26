@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bk-db
+    environment:
+      POSTGRES_DB: booksdb
+      POSTGRES_USER: bookuser
+      POSTGRES_PASSWORD: bookpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    image: manohar2503/aplibrary-backend:latest   # use pushed image
+    container_name: bk-backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://bookuser:bookpass@db:5432/booksdb
+      CORS_ORIGINS: "*"
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: manohar2503/aplibrary-frontend:latest  # use pushed image
+    container_name: bk-frontend
+    environment:
+      API_BASE: http://localhost:8000 
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  db_data:

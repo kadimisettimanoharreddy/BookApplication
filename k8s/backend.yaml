@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: books
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: manohar2503/aplibrary-backend:latest
+          imagePullPolicy: Always
+          env:
+            - name: DATABASE_URL
+              value: postgresql+psycopg://bookuser:bookpass@postgres:5432/booksdb
+            - name: CORS_ORIGINS
+              value: "*"
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: books
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+
